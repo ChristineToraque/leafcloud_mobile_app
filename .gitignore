@@ -1,0 +1,12 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+build/
+
+# IDE files
+.idea/
+*.iml
+.metadata
+
+# Log files
+*.log
