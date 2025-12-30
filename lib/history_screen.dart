@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class HistoryScreen extends StatelessWidget {
   HistoryScreen({super.key});
@@ -59,34 +60,70 @@ class HistoryScreen extends StatelessWidget {
         backgroundColor: Colors.green[700],
       ),
       body: ListView.builder(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(16.0),
         itemCount: historyData.length,
         itemBuilder: (context, index) {
           final entry = historyData[index];
+          final timestamp = DateFormat.yMMMd().add_jm().format(DateTime.parse(entry['timestamp']));
+
           return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8.0),
-            elevation: 2,
+            margin: const EdgeInsets.only(bottom: 16.0),
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Timestamp: ${entry['timestamp']}',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    timestamp,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Colors.green[800],
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Text('N: ${entry['n_ppm']} ppm'),
-                  Text('P: ${entry['p_ppm']} ppm'),
-                  Text('K: ${entry['k_ppm']} ppm'),
-                  Text('EC: ${entry['ec']} µS/cm'),
-                  Text('pH: ${entry['ph']}'),
-                  Text('Temp: ${entry['temp_c']} °C'),
+                  const Divider(height: 20, thickness: 1),
+                  Row(
+                    children: [
+                      _buildDataColumn(context, 'N', '${entry['n_ppm']} ppm', Icons.eco),
+                      _buildDataColumn(context, 'P', '${entry['p_ppm']} ppm', Icons.grass),
+                      _buildDataColumn(context, 'K', '${entry['k_ppm']} ppm', Icons.local_florist),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      _buildDataColumn(context, 'EC', '${entry['ec']} µS/cm', Icons.flash_on),
+                      _buildDataColumn(context, 'pH', '${entry['ph']}', Icons.waves),
+                      _buildDataColumn(context, 'Temp', '${entry['temp_c']} °C', Icons.thermostat),
+                    ],
+                  ),
                 ],
               ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildDataColumn(BuildContext context, String label, String value, IconData icon) {
+    return Expanded(
+      child: Column(
+        children: [
+          Icon(icon, color: Colors.green[600], size: 28),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 14),
+          ),
+        ],
       ),
     );
   }

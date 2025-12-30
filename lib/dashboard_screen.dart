@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_leafcloud_app/history_screen.dart';
+import 'package:flutter_leafcloud_app/settings_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   final Map<String, dynamic> data = {
@@ -25,7 +26,9 @@ class DashboardScreen extends StatelessWidget {
     "recommendation": "Nitrogen is low. Consider adding 10ml of 'Grow' solution."
   };
 
-  DashboardScreen({super.key});
+  final void Function(ThemeMode) onThemeModeChanged;
+
+  const DashboardScreen({super.key, required this.onThemeModeChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +43,15 @@ class DashboardScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => HistoryScreen()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsScreen(onThemeModeChanged: onThemeModeChanged)),
               );
             },
           ),
