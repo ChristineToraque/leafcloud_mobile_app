@@ -3,21 +3,21 @@ import 'package:flutter_leafcloud_app/history_screen.dart';
 import 'package:flutter_leafcloud_app/settings_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
-  final Map<String, dynamic> data = {
+  static const Map<String, dynamic> data = {
     "timestamp": "2025-11-16T10:30:01Z",
     "plant_id": "bucket_1_lettuce",
     "lettuce_image_url": "https://www.gardeningknowhow.com/wp-content/uploads/2021/05/lettuce-with-brown-edges.jpg",
-    "sensors": {
+    "sensors": const {
       "ec": 790.5,
       "ph": 6.4,
       "temp_c": 25.1
     },
-    "predictions": {
+    "predictions": const {
       "n_ppm": 139.4,
       "p_ppm": 46.5,
       "k_ppm": 185.8
     },
-    "status": {
+    "status": const {
       "n_status": "low",
       "p_status": "ok",
       "k_status": "ok",

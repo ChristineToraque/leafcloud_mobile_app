@@ -34,10 +34,10 @@ This command will build the application and install it on your target device. Th
 
 If you encounter an error like "flutter: command not found", it means the Flutter SDK's `bin` directory is not in your system's PATH. In this case, you can run Flutter commands by providing the full path to the executable.
 
-For example, if your Flutter SDK is located at `/path/to/your/flutter/sdk`, you would run the app using:
+For example, if your Flutter SDK is located at `/home/christine/leafcloud_mobile_app/flutter`, you would run the app using:
 
 ```bash
-/path/to/your/flutter/sdk/bin/flutter run
+/home/christine/leafcloud_mobile_app/flutter/bin/flutter run -d linux
 ```
 
 Remember to replace `/path/to/your/flutter/sdk` with the actual path where you installed the Flutter SDK.
