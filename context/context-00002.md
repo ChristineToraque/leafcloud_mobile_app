@@ -1,3 +1,5 @@
+[Main](/context/context-00000.md) | [Previous](/context/context-00001.md)
+
 ## UI Prototype Creation
 
 This document summarizes the steps taken to create a UI prototype for the Flutter application based on the provided JSON response.
@@ -25,3 +27,5 @@ This document summarizes the steps taken to create a UI prototype for the Flutte
 ### Outcome:
 
 The Flutter application now successfully compiles and runs on an Android device, displaying the initial UI prototype of the LeafCloud Dashboard with the hardcoded plant data. The UI provides a clear and organized view of the plant's status, sensor readings, nutrient predictions, and recommendations.
+
+[Next](/context/context-00003.md)

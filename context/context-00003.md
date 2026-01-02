@@ -1,3 +1,5 @@
+[Main](/context/context-00000.md) | [Previous](/context/context-00002.md)
+
 ## Changes Made to HistoryScreen and DashboardScreen
 
 ### HistoryScreen (`lib/history_screen.dart`)
@@ -7,3 +9,5 @@
 
 ### DashboardScreen (`lib/dashboard_screen.dart`)
 - Modified the `MaterialPageRoute` for navigating to `HistoryScreen` by removing the `const` keyword from `HistoryScreen()` to align with the changes in `HistoryScreen`'s constructor.
+
+[Next](/context/context-00004.md)
