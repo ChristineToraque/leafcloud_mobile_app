@@ -10,3 +10,5 @@ build/
 
 # Log files
 *.log
+context/
+docs

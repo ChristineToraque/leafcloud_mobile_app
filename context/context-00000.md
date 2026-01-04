@@ -10,3 +10,5 @@ This directory contains the documentation and context for the LeafCloud Flutter 
 - [App Walkthrough & Code Structure](context-00004.md) - A step-by-step guide to the codebase for new developers.
 - [Flutter SDK & CLI Guide](context-00005.md) - Details on the SDK installation and how to use Flutter without IDE extensions.
 - [Xcode Troubleshooting & Maintenance](context-00006.md) - Documentation on fixing Xcode issues and understanding simulator runtimes.
+- [Dashboard Screen Code Walkthrough](context-00007.md) - Detailed breakdown of the dashboard UI code and logic.
+- [API Integration & Widget Architecture](context-00008.md) - Transition to StatefulWidgets and real-time data fetching.

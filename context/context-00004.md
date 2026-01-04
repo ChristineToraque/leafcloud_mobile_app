@@ -24,6 +24,7 @@ This is the first screen the user sees. It serves as the central hub for the app
 *   **File:** `lib/dashboard_screen.dart`
 *   **Key Widget:** `DashboardScreen`
 *   **State:** Currently `StatelessWidget`, using hardcoded `data` map to simulate API responses.
+*   **More Discussion:** See [Dashboard Screen Code Walkthrough](/context/context-00007.md).
 
 **Key Components within this file:**
 *   **`_buildHeader()`**: Displays the plant ID, timestamp, and the lettuce image.

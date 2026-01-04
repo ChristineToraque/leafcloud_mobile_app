@@ -1,31 +1,50 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_leafcloud_app/history_screen.dart';
 
-class DashboardScreen extends StatelessWidget {
-  final Map<String, dynamic> data = {
-    "timestamp": "2025-11-16T10:30:01Z",
-    "plant_id": "bucket_1_lettuce",
-    "lettuce_image_url": "https://www.gardeningknowhow.com/wp-content/uploads/2021/05/lettuce-with-brown-edges.jpg",
-    "sensors": {
-      "ec": 790.5,
-      "ph": 6.4,
-      "temp_c": 25.1
-    },
-    "predictions": {
-      "n_ppm": 139.4,
-      "p_ppm": 46.5,
-      "k_ppm": 185.8
-    },
-    "status": {
-      "n_status": "low",
-      "p_status": "ok",
-      "k_status": "ok",
-      "overall_status": "warning"
-    },
-    "recommendation": "Nitrogen is low. Consider adding 10ml of 'Grow' solution."
-  };
+class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
 
-  DashboardScreen({super.key});
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  Map<String, dynamic>? data;
+  bool isLoading = true;
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    try {
+      // Updated endpoint per Phase 2 Spec (AppBuilding.pdf)
+      // Note: Using 127.0.0.1. For Android Emulator use 10.0.2.2
+      final response = await http.get(Uri.parse('http://127.0.0.1:8000/app/latest_status/'));
+      
+      if (response.statusCode == 200) {
+        setState(() {
+          data = json.decode(response.body);
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          errorMessage = 'Failed to load data: ${response.statusCode}';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Error: $e';
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +52,10 @@ class DashboardScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('LeafCloud Dashboard'),
         backgroundColor: Colors.green[700],
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: const Icon(Icons.history, color: Colors.white),
+            icon: const Icon(Icons.history),
             onPressed: () {
               Navigator.push(
                 context,
@@ -45,23 +65,31 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            _buildHeader(),
-            const SizedBox(height: 24),
-            _buildRecommendationCard(),
-            const SizedBox(height: 24),
-            _buildStatusGrid(),
-            const SizedBox(height: 24),
-            _buildSensorReadings(),
-            const SizedBox(height: 24),
-            _buildNutrientPredictions(),
-          ],
-        ),
-      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : errorMessage != null
+              ? Center(child: Text(errorMessage!))
+              : RefreshIndicator(
+                  onRefresh: fetchData,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        _buildHeader(),
+                        const SizedBox(height: 24),
+                        _buildRecommendationCard(),
+                        const SizedBox(height: 24),
+                        _buildStatusCard(),
+                        const SizedBox(height: 24),
+                        _buildSensorReadings(),
+                        const SizedBox(height: 24),
+                        _buildNutrientPredictions(),
+                      ],
+                    ),
+                  ),
+                ),
     );
   }
 
@@ -69,31 +97,33 @@ class DashboardScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Plant: ${data['plant_id']}',
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+        const Text(
+          'Live Monitor',
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
         Text(
-          'Last updated: ${data['timestamp']}',
+          'Last updated: ${data!['timestamp'] ?? 'Unknown'}',
           style: const TextStyle(fontSize: 16, color: Colors.grey),
         ),
         const SizedBox(height: 16),
         Center(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12.0),
-            child: Image.network(
-              data['lettuce_image_url'],
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => const Icon(Icons.error, size: 200),
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              },
+          child: Container(
+            height: 200,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.green[50],
+              borderRadius: BorderRadius.circular(12.0),
+              border: Border.all(color: Colors.green[100]!),
+            ),
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.eco, size: 80, color: Colors.green),
+                SizedBox(height: 8),
+                Text("Live Image Stream", style: TextStyle(color: Colors.green)),
+                // TODO: Add image support when API includes image_url
+              ],
             ),
           ),
         ),
@@ -102,23 +132,37 @@ class DashboardScreen extends StatelessWidget {
   }
 
   Widget _buildRecommendationCard() {
+    final status = data!['status'] as String? ?? "Unknown";
+    final isOptimal = status == "Optimal";
+    final color = isOptimal ? Colors.green : Colors.orange;
+
     return Card(
-      elevation: 4,
+      elevation: 2,
+      color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: Colors.blue[50],
-      child: Padding(
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.green[50],
+          borderRadius: BorderRadius.circular(12),
+        ),
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Recommendation',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),
+            Row(
+              children: [
+                Icon(Icons.lightbulb, color: color),
+                const SizedBox(width: 8),
+                Text(
+                  'Recommendation',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Text(
-              data['recommendation'],
-              style: const TextStyle(fontSize: 16),
+              data!['recommendation'] ?? 'No recommendation available',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -126,51 +170,75 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusGrid() {
-    final status = data['status'] as Map<String, dynamic>;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Nutrient Status', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 12),
-        GridView.count(
-          crossAxisCount: 3,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
+  Widget _buildStatusCard() {
+    final status = data!['status'] as String? ?? "Unknown";
+    final isOptimal = status == "Optimal";
+    
+    return Card(
+      elevation: 2,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.green[50],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
           children: [
-            Text('Nitrogen (N): ${status['n_status']}'),
-            Text('Phosphorus (P): ${status['p_status']}'),
-            Text('Potassium (K): ${status['k_status']}'),
+            Icon(
+              isOptimal ? Icons.check_circle : Icons.warning,
+              color: isOptimal ? Colors.green : Colors.orange,
+              size: 32,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'System Status',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    status,
+                    style: TextStyle(
+                      fontSize: 20, 
+                      color: isOptimal ? Colors.green[800] : Colors.orange[800],
+                      fontWeight: FontWeight.w500
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
-      ],
+      ),
     );
   }
 
   Widget _buildSensorReadings() {
-    final sensors = data['sensors'] as Map<String, dynamic>;
+    final sensors = data!['sensors'] as Map<String, dynamic>;
     return _buildInfoCard(
       title: 'Live Sensor Data',
       icon: Icons.sensors,
       children: [
-        _buildInfoRow('EC', '${sensors['ec']} µS/cm'),
+        _buildInfoRow('EC', '${sensors['ec']} mS/cm'),
         _buildInfoRow('pH', '${sensors['ph']}'),
-        _buildInfoRow('Temperature', '${sensors['temp_c']} °C'),
+        _buildInfoRow('Temperature', '${sensors['temp']} °C'),
       ],
     );
   }
 
   Widget _buildNutrientPredictions() {
-    final predictions = data['predictions'] as Map<String, dynamic>;
+    final levels = data!['npk_levels'] as Map<String, dynamic>;
     return _buildInfoCard(
       title: 'NPK Predictions (ppm)',
       icon: Icons.science,
       children: [
-        _buildInfoRow('Nitrogen (N)', '${predictions['n_ppm']}'),
-        _buildInfoRow('Phosphorus (P)', '${predictions['p_ppm']}'),
-        _buildInfoRow('Potassium (K)', '${predictions['k_ppm']}'),
+        _buildInfoRow('Nitrogen (N)', '${levels['Nitrogen']}'),
+        _buildInfoRow('Phosphorus (P)', '${levels['Phosphorus']}'),
+        _buildInfoRow('Potassium (K)', '${levels['Potassium']}'),
       ],
     );
   }

@@ -41,4 +41,4 @@ This typically means that while Xcode is installed, no specific iOS Simulator ru
 *   **Manually open Simulator:** `open -a Simulator`
 *   **Reset Flutter Configuration:** `flutter config --clear-features` (used to ensure default settings are applied).
 
-[Main Menu](/context/context-00000.md)
+[Next](/context/context-00007.md)

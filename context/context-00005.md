@@ -81,4 +81,4 @@ Without an IDE extension, your workflow will look like this:
 3.  **Hot Reload:** While the app is running in the terminal, press **'r'** to perform a Hot Reload or **'R'** for a Hot Restart.
 4.  **Debug:** View logs directly in the terminal output.
 
-[Main Menu](/context/context-00006.md)
+[Next](/context/context-00006.md)
