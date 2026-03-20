@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_leafcloud_app/dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -9,8 +11,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _emailController = TextEditingController(text: 'admin@leafcloud.com');
+  final _passwordController = TextEditingController(text: 'admin');
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -20,19 +22,31 @@ class _LoginScreenState extends State<LoginScreen> {
       _errorMessage = null;
     });
 
-    // TODO: Implement actual authentication logic here
-    await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.1.7:8000/auth/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'email': _emailController.text,
+          'password': _passwordController.text,
+        }),
+      );
 
-    // Placeholder validation
-    if (_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const DashboardScreen()),
-        );
+      if (response.statusCode == 200) {
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const DashboardScreen()),
+          );
+        }
+      } else {
+        setState(() {
+          _errorMessage = 'Error ${response.statusCode}: ${response.body}';
+          _isLoading = false;
+        });
       }
-    } else {
+    } catch (e) {
       setState(() {
-        _errorMessage = 'Please enter both email and password.';
+        _errorMessage = 'Connection error: $e';
         _isLoading = false;
       });
     }
