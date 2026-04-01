@@ -13,3 +13,7 @@ build/
 context/
 docs
 conductor
+
+.flutter-plugins-dependencies
+GEMINI.md
+coverage/
